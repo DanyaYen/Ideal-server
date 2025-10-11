@@ -10,13 +10,14 @@ pipeline {
         stage('Terraform Provision') {
             steps {
                 dir('terraform') {
-                    sh 'brew install terraform'
+                    sh '/opt/homebrew/bin/brew install terraform'
+                    
                     sh 'terraform init'
-
                     sh 'terraform apply -auto-approve'
                 }
             }
         }
+        
         stage('Prepare for Ansible') {
             steps {
                 script {
@@ -40,10 +41,12 @@ ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/
                 }
             }
         }
+
         stage('Ansible Configuration') {
             steps {
                 dir('ansible') {
-                    sh 'brew install ansible'
+                    sh '/opt/homebrew/bin/brew install ansible'
+
                     withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                         sh 'ansible-playbook -i inventory.ini playbook.yml --private-key $SSH_KEY'
                     }
