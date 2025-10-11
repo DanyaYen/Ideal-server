@@ -4,17 +4,14 @@ pipeline {
     environment {
         GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-credentials')
     }
-    
+
     stages {
 
         stage('Terraform Provision') {
             steps {
                 dir('terraform') {
                     sh '''
-                        apt-get update && apt-get install -y gnupg software-properties-common curl
-                        curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-                        apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-                        apt-get update && apt-get install -y terraform
+                        sh 'brew install terraform'
                     '''
                     sh 'terraform init'
 
@@ -48,7 +45,7 @@ ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/
         stage('Ansible Configuration') {
             steps {
                 dir('ansible') {
-                    sh 'apt-get update && apt-get install -y ansible'
+                    sh 'brew install ansible'
                     withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
                         sh 'ansible-playbook -i inventory.ini playbook.yml --private-key $SSH_KEY'
                     }
