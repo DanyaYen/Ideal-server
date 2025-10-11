@@ -10,10 +10,8 @@ pipeline {
         stage('Terraform Provision') {
             steps {
                 dir('terraform') {
-                    sh '/opt/homebrew/bin/brew install terraform'
-                    
-                    sh 'terraform init'
-                    sh 'terraform apply -auto-approve'
+                    sh '/opt/homebrew/bin/terraform init'
+                    sh '/opt/homebrew/bin/terraform apply -auto-approve'
                 }
             }
         }
@@ -21,7 +19,7 @@ pipeline {
         stage('Prepare for Ansible') {
             steps {
                 script {
-                    def serverIp = sh(script: 'cd terraform && terraform output -raw instance_public_ip', returnStdout: true).trim()
+                    def serverIp = sh(script: 'cd terraform && /opt/homebrew/bin/terraform output -raw instance_public_ip', returnStdout: true).trim()
                     
                     echo "Server IP found: ${serverIp}"
                     dir('ansible') {
@@ -45,10 +43,8 @@ ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/
         stage('Ansible Configuration') {
             steps {
                 dir('ansible') {
-                    sh '/opt/homebrew/bin/brew install ansible'
-
                     withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY')]) {
-                        sh 'ansible-playbook -i inventory.ini playbook.yml --private-key $SSH_KEY'
+                        sh '/opt/homebrew/bin/ansible-playbook -i inventory.ini playbook.yml --private-key $SSH_KEY'
                     }
                 }
             }
