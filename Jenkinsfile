@@ -10,9 +10,7 @@ pipeline {
         stage('Terraform Provision') {
             steps {
                 dir('terraform') {
-                    sh '''
-                        sh 'brew install terraform'
-                    '''
+                    sh 'brew install terraform'
                     sh 'terraform init'
 
                     sh 'terraform apply -auto-approve'
