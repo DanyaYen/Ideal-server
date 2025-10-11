@@ -6,7 +6,6 @@ pipeline {
     }
 
     stages {
-
         stage('Terraform Provision') {
             steps {
                 dir('terraform') {
@@ -22,6 +21,7 @@ pipeline {
                     def serverIp = sh(script: 'cd terraform && /opt/homebrew/bin/terraform output -raw instance_public_ip', returnStdout: true).trim()
                     
                     echo "Server IP found: ${serverIp}"
+                    
                     dir('ansible') {
                         writeFile(
                             file: 'inventory.ini', 
@@ -32,6 +32,8 @@ ${serverIp}
 [servers:vars]
 ansible_user=ubuntu
 ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+ansible_ssh_retries=5
+ansible_ssh_delay=10
 """
                         )
                         echo "Ansible inventory.ini created successfully."
@@ -50,9 +52,10 @@ ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/
             }
         }
     }
+    
     post {
         always {
-            echo 'Pipeline has finished.'
+            echo 'Pipeline has finished. Infrastructure is running.'
         }
     }
 }
