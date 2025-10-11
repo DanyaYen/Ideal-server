@@ -4,15 +4,8 @@ pipeline {
     environment {
         GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-credentials')
     }
-
-    // Определяем этапы (стадии) нашего конвейера
+    
     stages {
-        // --- ЭТАП 1: Загрузка кода ---
-        stage('Checkout Code') {
-            steps {
-                git 'https://github.com/DanyaYen/Ideal-server.git'
-            }
-        }
 
         stage('Terraform Provision') {
             steps {
